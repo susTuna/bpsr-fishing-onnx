@@ -32,19 +32,9 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build Executable with Nuitka
-        uses: Nuitka/Nuitka-Action@main
-        with:
-          nuitka-version: main
-          script-name: main.py
-          onefile: true
-          enable-plugins: pyside6,numpy
-          args: >-
-            --output-filename=bpsr-fishing.exe
-            --windows-console-mode=disable
-            --windows-icon-from-ico=icons/airona.ico
-            --include-data-dir=assets=assets
-            --include-data-dir=icons=icons
-            --assume-yes-for-downloads
+        run: |
+          python -m pip install nuitka
+          python -m nuitka --onefile --output-dir=build --output-filename=bpsr-fishing.exe --enable-plugins=pyside6,numpy --windows-console-mode=disable --windows-icon-from-ico=icons/airona.ico --include-data-dir=assets=assets --include-data-dir=icons=icons --assume-yes-for-downloads main.py
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
