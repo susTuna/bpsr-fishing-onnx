@@ -39,7 +39,7 @@ jobs:
       - name: Build Executable with Nuitka
         run: |
           python -m pip install nuitka
-          python -m nuitka --onefile --output-dir=build --output-filename=bpsr-fishing.exe --enable-plugins=pyside6 --windows-console-mode=disable --windows-icon-from-ico=icons/airona_clean.ico --include-data-dir=assets=assets --include-data-dir=icons=icons --include-package=src --assume-yes-for-downloads main.py
+          python -m nuitka --onefile --output-dir=build --output-filename=bpsr-fishing.exe --enable-plugins=pyside6 --windows-icon-from-ico=icons/airona_clean.ico --include-data-dir=assets=assets --include-data-dir=icons=icons --include-package=src --assume-yes-for-downloads main.py
       
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
