@@ -1,0 +1,60 @@
+name: Build Windows Executable
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build Executable with Nuitka
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main.py
+          onefile: true
+          enable-plugins: pyside6,numpy
+          args: >-
+            --output-filename=bpsr-fishing.exe
+            --windows-console-mode=disable
+            --windows-icon-from-ico=icons/airona.ico
+            --include-data-dir=assets=assets
+            --include-data-dir=icons=icons
+            --assume-yes-for-downloads
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpsr-fishing-windows-exe
+          path: build/bpsr-fishing.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/bpsr-fishing.exe
+          generate_release_notes: true
