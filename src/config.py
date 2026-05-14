@@ -34,7 +34,7 @@ config = {
         }
     },
     'windows': {
-        'exe': ['Star.exe', 'BPSR.exe', 'BPSR_STEAM.exe'],
+        'exe': ['Star.exe', 'BPSR.exe', 'BPSR_STEAM.exe', 'StarSEA_STEAM.exe'],
         'interaction': 'Pynput',
         'can_bit_blt': True,  # default false, opengl games does not support bit_blt
         'bit_blt_render_full': True,
