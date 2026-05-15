@@ -3,7 +3,6 @@ from typing import Tuple
 # from openvino import Core  # Removed OpenVINO Core
 import cv2
 import numpy as np
-import onnxruntime as ort  # Added onnxruntime
 from ok import Logger, Box, sort_boxes, og  # Assuming these are available
 
 logger = Logger.get_logger(__name__)
@@ -12,6 +11,7 @@ logger = Logger.get_logger(__name__)
 class OnnxYolo8Detect:  # Renamed class
 
     def __init__(self, weights='bpsr_splash.onnx', model_h=640, model_w=640, iou_thres=0.45):
+        import onnxruntime as ort  # Added onnxruntime
         """
         yolov ONNX Runtime inference
         dic_labels: {0: 'person', 1: 'bicycle'}
