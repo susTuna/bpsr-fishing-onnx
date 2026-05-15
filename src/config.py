@@ -30,7 +30,7 @@ config = {
     'ocr': {
         'lib': 'onnxocr',
         'params': {
-            'use_openvino': False,
+            'use_openvino': True,
         }
     },
     'windows': {
