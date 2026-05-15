@@ -2,6 +2,8 @@ name: "bpsr-fishing"
 uac: true
 profiles:
   - name: "Global"
-    git_url: "https://github.com/ArtjomsBogatirjovs/bpsr-fishing"
+    git_url: "https://github.com/susTuna/bpsr-fishing-onnx"
     main_script: "main.py"
     requirements: "requirements.txt"
+    python_version: "3.12"
+
