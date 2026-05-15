@@ -10,6 +10,7 @@ on:
     branches:
       - master
   workflow_dispatch:
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -30,13 +31,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          python -m pip install pyinstaller
 
-      - name: Generate Clean Icon
-        shell: bash
-        run: |
-          python -c "from PIL import Image; img = Image.open('icons/airona.png'); img.save('icons/airona_clean.ico', format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])"
-
-      - name: Generate Clean Icon
+      - name: Generate icon
         shell: bash
         run: |
           python -c "from PIL import Image; img = Image.open('icons/airona.png'); img.save('icons/airona_clean.ico', format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])"
@@ -44,26 +41,41 @@ jobs:
       - name: Build Executable with PyInstaller
         shell: cmd
         run: |
-          python -m pip install pyinstaller
-          
           pyinstaller --noconfirm --onedir --windowed ^
             --icon "icons/airona_clean.ico" ^
             --name "bpsr-fishing" ^
             --add-data "assets;assets" ^
             --add-data "icons;icons" ^
+            --add-data "src;src" ^
+            --hidden-import "src.tasks.FishingTask" ^
+            --hidden-import "src.tasks.SRTriggerTask" ^
+            --hidden-import "src.globals" ^
+            --hidden-import "src.config" ^
+            --hidden-import "src.downloader" ^
+            --hidden-import "src.OpenVinoYolo8Detect" ^
+            --hidden-import "src.OnnxYolo8Detect" ^
             --collect-all "ok" ^
             --collect-all "qfluentwidgets" ^
             --collect-all "openvino" ^
             --collect-all "onnxocr" ^
+            --exclude-module "onnxruntime" ^
+            --exclude-module "PySide6.Qt3DAnimation" ^
+            --exclude-module "PySide6.Qt3DCore" ^
+            --exclude-module "PySide6.Qt3DExtras" ^
+            --exclude-module "PySide6.QtCharts" ^
+            --exclude-module "PySide6.QtDataVisualization" ^
+            --exclude-module "PySide6.QtWebEngineCore" ^
+            --exclude-module "PySide6.QtWebEngineWidgets" ^
+            --exclude-module "PySide6.QtMultimedia" ^
+            --exclude-module "PySide6.QtMultimediaWidgets" ^
             main.py
 
-      - name: Zip the Application
+      - name: Zip the application (without model)
         shell: pwsh
         run: |
-          # PyInstaller outputs to the "dist" folder
           Compress-Archive -Path dist\bpsr-fishing\* -DestinationPath dist\bpsr-fishing-windows.zip
 
-      - name: Upload Artifact
+      - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: bpsr-fishing-windows
@@ -73,5 +85,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dist/bpsr-fishing-windows.zip
+          files: |
+            dist/bpsr-fishing-windows.zip
+            assets/models/bpsr_splash.onnx
           generate_release_notes: true
