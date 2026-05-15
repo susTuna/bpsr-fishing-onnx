@@ -1,4 +1,9 @@
 import ok
+import ok.capture
+
+import src.globals
+import src.tasks.FishingTask
+import src.tasks.SRTriggerTask
 
 from src.config import config
 
