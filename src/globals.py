@@ -17,7 +17,6 @@ class Globals(QObject):
         if self._yolo_model is None:
             from src.downloader import ensure_model
             weights = get_path_relative_to_exe(os.path.join("assets", "models", "bpsr_splash.onnx"))
-
             ensure_model(weights)
 
             if og.config.get("ocr").get("params").get("use_openvino"):

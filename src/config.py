@@ -1,40 +1,78 @@
-import os.path
+import os
 
-from PySide6.QtCore import QObject
-from ok import Logger, get_path_relative_to_exe, og
+from ok import ConfigOption
 
-from src.downloader import ensure_model
+version = "dev"
 
-logger = Logger.get_logger(__name__)
+key_config_option = ConfigOption(
+    "Game Settings",
+    {
+        "Language": "English",
+    },
+    description="Game Settings",
+    config_type={
+        "Language": {
+            "type": "drop_down",
+            "options": ["English"],
+        }
+    },
+)
 
-
-class Globals(QObject):
-
-    def __init__(self, exit_event):
-        super().__init__()
-        self._yolo_model = None
-
-    @property
-    def yolo_model(self):
-        if self._yolo_model is None:
-            weights = get_path_relative_to_exe(os.path.join("assets", "models", "bpsr_splash.onnx"))
-
-            ensure_model(weights)
-
-            if og.config.get("ocr").get("params").get("use_openvino"):
-                logger.info("yolo_model Using OpenVinoYolo8Detect")
-                from src.OpenVinoYolo8Detect import OpenVinoYolo8Detect
-                self._yolo_model = OpenVinoYolo8Detect(weights=weights)
-            else:
-                logger.info("yolo_model Using OnnxYolo8Detect")
-                from src.OnnxYolo8Detect import OnnxYolo8Detect
-                self._yolo_model = OnnxYolo8Detect(weights=weights)
-
-        return self._yolo_model
-
-    def yolo_detect(self, image, threshold=0.6, label=-1):
-        return self.yolo_model.detect(image, threshold=threshold, label=label)
-
-
-if __name__ == "__main__":
-    glbs = Globals(exit_event=None)
+config = {
+    'debug': False,
+    'use_gui': True,
+    'config_folder': 'configs',
+    'global_configs': [key_config_option],
+    'gui_icon': 'icons/airona.png',
+    'wait_until_before_delay': 0,
+    'wait_until_check_delay': 0,
+    'wait_until_settle_time': 0.2,
+    'ocr': {
+        'lib': 'onnxocr',
+        'params': {
+            'use_openvino': False,
+        }
+    },
+    'windows': {
+        'exe': ['Star.exe', 'BPSR.exe', 'BPSR_STEAM.exe', 'StarSEA_STEAM.exe'],
+        'interaction': 'Pynput',
+        'can_bit_blt': True,
+        'bit_blt_render_full': True,
+        'check_hdr': True,
+        'force_no_hdr': False,
+        'require_bg': True
+    },
+    'start_timeout': 60,
+    'window_size': {
+        'width': 1200,
+        'height': 800,
+        'min_width': 600,
+        'min_height': 450,
+    },
+    'supported_resolution': {
+        'ratio': '16:9',
+        'min_size': (1280, 720),
+        'resize_to': [(2560, 1440), (1920, 1080), (1600, 900), (1280, 720)],
+    },
+    'links': {
+        'default': {
+            'github': 'https://github.com/susTuna/bpsr-fishing-onnx',
+        }
+    },
+    'screenshots_folder': "screenshots",
+    'gui_title': 'Blue protocol: Star Resonance auto-fishing',
+    'template_matching': {
+        'coco_feature_json': os.path.join('assets', 'result.json'),
+        'default_horizontal_variance': 0.002,
+        'default_vertical_variance': 0.002,
+        'default_threshold': 0.8,
+    },
+    'version': version,
+    'my_app': ['src.globals', 'Globals'],
+    'onetime_tasks': [
+        ["ok", "DiagnosisTask"],
+    ],
+    'trigger_tasks': [
+        ["src.tasks.FishingTask", "FishingTask"],
+    ]
+}
