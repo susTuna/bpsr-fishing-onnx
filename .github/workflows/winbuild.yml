@@ -36,25 +36,42 @@ jobs:
         run: |
           python -c "from PIL import Image; img = Image.open('icons/airona.png'); img.save('icons/airona_clean.ico', format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])"
 
-      - name: Build Executable with Nuitka
+      - name: Generate Clean Icon
+        shell: bash
         run: |
-          python -m pip install nuitka
-          python -m nuitka --standalone --output-dir=build --output-filename=bpsr-fishing.exe --enable-plugins=pyside6 --windows-icon-from-ico=icons/airona_clean.ico --include-data-dir=assets=assets --include-data-dir=icons=icons --include-package=src --include-package=ok --assume-yes-for-downloads main.py
+          python -c "from PIL import Image; img = Image.open('icons/airona.png'); img.save('icons/airona_clean.ico', format='ICO', sizes=[(256, 256), (128, 128), (64, 64), (32, 32), (16, 16)])"
+
+      - name: Build Executable with PyInstaller
+        shell: cmd
+        run: |
+          python -m pip install pyinstaller
+          
+          pyinstaller --noconfirm --onedir --windowed ^
+            --icon "icons/airona_clean.ico" ^
+            --name "bpsr-fishing" ^
+            --add-data "assets;assets" ^
+            --add-data "icons;icons" ^
+            --collect-all "ok" ^
+            --collect-all "qfluentwidgets" ^
+            --collect-all "openvino" ^
+            --collect-all "onnxocr" ^
+            main.py
 
       - name: Zip the Application
         shell: pwsh
         run: |
-          Compress-Archive -Path build\main.dist\* -DestinationPath build\bpsr-fishing-windows.zip
+          # PyInstaller outputs to the "dist" folder
+          Compress-Archive -Path dist\bpsr-fishing\* -DestinationPath dist\bpsr-fishing-windows.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: bpsr-fishing-windows
-          path: build/bpsr-fishing-windows.zip
+          path: dist/bpsr-fishing-windows.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/bpsr-fishing-windows.zip
+          files: dist/bpsr-fishing-windows.zip
           generate_release_notes: true
