@@ -23,7 +23,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bpsr-fishing-online
-          path: dist/*.zip
+          path: pyappify_dist/*.zip
 
   build-offline:
     runs-on: windows-latest
@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bpsr-fishing-offline
-          path: dist/*.zip
+          path: pyappify_dist/*.zip
 
   release:
     runs-on: ubuntu-latest
